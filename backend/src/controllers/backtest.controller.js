@@ -61,8 +61,15 @@ export async function createBacktest(req, res) {
     );
 
     // --- persist (scoped to the authenticated user) ---
-    const saved = await BacktestResult.create({ ...data, user: req.userId });
-    return res.status(201).json(saved);
+    // If the DB is unavailable, still return the computed result so the user
+    // always gets their profit/loss — they just won't see it in history.
+    try {
+      const saved = await BacktestResult.create({ ...data, user: req.userId });
+      return res.status(201).json({ ...saved.toObject(), persisted: true });
+    } catch (saveErr) {
+      console.error("[backtest] save failed:", saveErr.message);
+      return res.status(201).json({ ...data, _id: null, persisted: false });
+    }
   } catch (err) {
     // Surface the Python service's error message when available.
     if (err.response) {

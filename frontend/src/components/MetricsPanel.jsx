@@ -21,6 +21,12 @@ export default function MetricsPanel({ result }) {
 
   const cards = [
     {
+      label: "Net P&L",
+      value: `${result.finalValue - result.initialCapital >= 0 ? "+" : "−"}${fmtCurrency(Math.abs(result.finalValue - result.initialCapital))}`,
+      tone: result.finalValue - result.initialCapital >= 0 ? "pos" : "neg",
+      icon: WalletIcon,
+    },
+    {
       label: "Total return",
       value: fmtPct(result.totalReturn),
       tone: result.totalReturn >= 0 ? "pos" : "neg",

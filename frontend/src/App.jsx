@@ -250,6 +250,10 @@ export default function App() {
 /* ---------- shared bits ---------- */
 
 function ResultView({ run }) {
+  const pnl = run.finalValue - run.initialCapital;
+  const up = pnl >= 0;
+  const fmtINR = (n) =>
+    n.toLocaleString("en-IN", { maximumFractionDigits: 0 });
   return (
     <>
       <div className="card px-5 py-4 flex items-center justify-between flex-wrap gap-2">
@@ -257,15 +261,21 @@ function ResultView({ run }) {
           <div className="text-lg font-bold">{run.symbol}</div>
           <div className="text-xs text-slate-500">
             {run.strategy} · {run.startDate} → {run.endDate}
+            {run.persisted === false && (
+              <span className="ml-2 chip bg-amber-50 text-amber-700 border border-amber-200">
+                not saved (DB offline)
+              </span>
+            )}
           </div>
         </div>
-        <div
-          className={`text-2xl font-extrabold tnum ${
-            run.totalReturn >= 0 ? "pos" : "neg"
-          }`}
-        >
-          {run.totalReturn > 0 ? "+" : ""}
-          {run.totalReturn?.toFixed(2)}%
+        <div className="text-right">
+          <div className={`text-2xl font-extrabold tnum ${up ? "pos" : "neg"}`}>
+            {up ? "+" : "−"}₹{fmtINR(Math.abs(pnl))}
+          </div>
+          <div className={`text-xs font-semibold tnum ${up ? "pos" : "neg"}`}>
+            {up ? "Profit" : "Loss"} · {run.totalReturn > 0 ? "+" : ""}
+            {run.totalReturn?.toFixed(2)}%
+          </div>
         </div>
       </div>
       <MetricsPanel result={run} />
